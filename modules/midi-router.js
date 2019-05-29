@@ -1,36 +1,30 @@
 export default class MidiRouter {
-  constructor(name) {
+  constructor (name) {
     this.deviceName = name
     this.handleStateChange = this.handleStateChange.bind(this)
     this.midiSetup()
     this.channelHandlers = []
   }
-  async midiSetup() {
+  async midiSetup () {
     const access = await navigator.requestMIDIAccess()
     access.onstatechange = this.handleStateChange
     this.input = this.findDevice(access)
     if (this.input) {
-      console.log("Connected", this.input)
       this.input.onmidimessage = (e) => console.log(e)
       this.input.addEventListener('midimessage', (e) => this.handleInput(e))
     }
   }
-  findDevice(access) {
-    console.log(access.inputs)
-    for(var [id, input] of access.inputs) {
-      console.log(input.name)
+  findDevice (access) {
+    for (var [, input] of access.inputs) {
       if (input.name.match(this.deviceName)) {
         return input
       }
     }
   }
-  handleStateChange(event) {
-    console.log("WHAT", event)
+  handleStateChange (event) {
     // TODO: Implement for resilience
   }
-  handleInput(event) {
-
-    console.log(this.channelHandlers)
+  handleInput (event) {
     const data = event.data
     if (data === [0xF8]) {
       this.channelHandlers.forEach((handler) => {
@@ -42,9 +36,7 @@ export default class MidiRouter {
     if (data.length === 3) {
       const channel = (data[0] & 0xF) + 1
       const command = data[0] & 0xF0
-      console.log(command, channel)
       if (command === 144) {
-
         // handle noteon
         if (this.channelHandlers[channel] != null && (typeof this.channelHandlers[channel].noteOn === 'function')) {
           this.channelHandlers[channel].noteOn(data[1], data[2])
@@ -57,7 +49,7 @@ export default class MidiRouter {
         }
       }
       if (command === 176) {
-        // handle CC  
+        // handle CC
         if (this.channelHandlers[channel] != null && typeof this.channelHandlers[channel].cc === 'function') {
           this.channelHandlers[channel].cc(data[1], data[2])
         }
@@ -74,7 +66,7 @@ export default class MidiRouter {
     }
   }
 
-  connect(channel, obj) {
+  connect (channel, obj) {
     this.channelHandlers[channel] = obj
   }
 }

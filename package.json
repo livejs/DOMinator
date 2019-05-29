@@ -7,7 +7,12 @@
     "start": "http-server -o"
   },
   "standard": {
-    "globals": [ "OscillatorNode", "GainNode", "BiquadFilterNode", "AudioContext" ]
+    "globals": [
+      "OscillatorNode",
+      "GainNode",
+      "BiquadFilterNode",
+      "AudioContext"
+    ]
   },
   "repository": {
     "type": "git",

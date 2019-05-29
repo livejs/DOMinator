@@ -19,9 +19,11 @@ const synth = new SimpleSynth()
 const synthChannel = new MixerChannel()
 
 synth.output.connect(synthChannel.input)
+// synth.output.connect(window.audioContext.destination)
 synthChannel.output.connect(window.audioContext.destination)
 
 // expose for debugging
 window.synth = synth
 window.synthChannel = synthChannel
 router.connect(1, synth)
+router.connect(5, synthChannel)
