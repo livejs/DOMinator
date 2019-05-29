@@ -1,6 +1,7 @@
 import SimpleSynth from './modules/simple-synth.js'
 import MixerChannel from './modules/mixer-channel.js'
 import MidiRouter from './modules/midi-router.js'
+import SampleLoader from './modules/sample-loader.js'
 
 window.audioContext = new AudioContext()
 console.log("I'M THE ONE AND ONLY DOMINATOR")
@@ -17,6 +18,13 @@ document.getElementById('start').addEventListener('click', (ev) => {
 const router = new MidiRouter(/loopMIDI/)
 const synth = new SimpleSynth()
 const synthChannel = new MixerChannel()
+const loader = new SampleLoader()
+
+loader.register('stab.wav')
+
+loader.load().then(() => {
+  console.log(loader.getBuffer('stab.wav'))
+})
 
 synth.output.connect(synthChannel.input)
 // synth.output.connect(window.audioContext.destination)
