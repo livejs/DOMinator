@@ -21,6 +21,7 @@
   },
   "homepage": "https://github.com/livejs/DOMinator#readme",
   "devDependencies": {
-    "http-server": "^0.11.1"
+    "http-server": "^0.11.1",
+    "standard": "^12.0.1"
   }
 }
