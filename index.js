@@ -24,7 +24,7 @@ loader.register('stab.wav')
 
 loader.load().then(() => {
   console.log(loader.getBuffer('stab.wav'))
-})
+}).catch((e) => console.log(e))
 
 synth.output.connect(synthChannel.input)
 // synth.output.connect(window.audioContext.destination)
