@@ -11,7 +11,9 @@
       "OscillatorNode",
       "GainNode",
       "BiquadFilterNode",
-      "AudioContext"
+      "AudioContext",
+      "AudioBufferSourceNode",
+      "ConstantSourceNode"
     ]
   },
   "repository": {
