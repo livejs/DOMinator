@@ -1,4 +1,10 @@
 {
     "editor.tabSize": 2,
-    "standard.autoFixOnSave": true
+    "standard.autoFixOnSave": true,
+    "cSpell.words": [
+        "biquad",
+        "midimessage",
+        "onmidimessage",
+        "onstatechange"
+    ]
 }
