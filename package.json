@@ -6,6 +6,9 @@
   "scripts": {
     "start": "http-server -o"
   },
+  "standard": {
+    "globals": [ "OscillatorNode", "GainNode", "BiquadFilterNode", "AudioContext" ]
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/livejs/DOMinator.git"

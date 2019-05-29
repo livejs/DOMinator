@@ -1,8 +1,8 @@
 export default class SimpleSynth {
   constructor () {
-    this.oscillator = window.audioContext.createOscillator()
-    this.vca = window.audioContext.createGain()
-    this.vca.gain.value = 0
+    this.context = window.audioContext
+    this.oscillator = new OscillatorNode(this.context, { type: 'square' })
+    this.vca = new GainNode(this.context, { gain: 0 })
     this.oscillator.connect(this.vca)
     this.oscillator.start()
   }

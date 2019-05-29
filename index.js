@@ -1,6 +1,6 @@
 import SimpleSynth from './modules/simple-synth.js'
 
-window.audioContext = new window.AudioContext()
+window.audioContext = new AudioContext()
 console.log("I'M THE ONE AND ONLY DOMINATOR")
 
 document.getElementById('start').addEventListener('click', (ev) => {
