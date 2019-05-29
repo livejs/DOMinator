@@ -1,37 +1,48 @@
 const PITCH_SMOOTHING = 0.001
 
 export default class Slicer {
-  constructor ({ audioBuffer, sliceCount, ticks, tickQuantize = 3, startNote }) {
+  constructor ({ audioBuffer, sliceCount, ticks, tickQuantize = 6, startNote = 0 }) {
     this.buffer = audioBuffer
-    this.pitch = new ConstantSourceNode(window.audioContext)
-    this.position = 0
-    this.playing = false
-    this.player = null
     this.ticks = ticks
     this.sliceCount = sliceCount
     this.tickQuantize = tickQuantize
+    this.startNote = startNote
+    this.output = new GainNode(window.audioContext)
+
+    // STATE
+    this.detuneAmount = 0
+    this.position = 0
+    this.lastPosition = 0
+    this.playing = false
+    this.envelope = null
+    this.player = null
   }
 
   clock () {
     if (this.buffer) {
+      const ctx = window.audioContext
       if (this.playing) {
-        const ctx = window.audioContext
-        const quantizedPosition = Math.round(this.ticks / this.tickQuantize) * this.tickQuantize
-        const distance = Math.abs(this.position - quantizedPosition)
+        const quantizedPosition = this.position % this.tickQuantize
+        // const distance = Math.abs(this.position - this.lastPosition)
 
-        if (distance >= this.tickQuantize) {
+        if (quantizedPosition === 0) {
           const offset = (this.position / this.ticks) * this.buffer.duration
 
           if (this.player) {
-            this.player.stop()
+            this.player.stop(ctx.currentTime + 0.1)
+            this.envelope.gain.setTargetAtTime(0, ctx.currentTime, 0.001)
           }
 
-          this.player = new AudioBufferSourceNode(ctx, { buffer: this.buffer })
-          this.pitch.connect(this.player.detune)
+          this.envelope = new GainNode(ctx, { gain: 0 })
+          this.player = new AudioBufferSourceNode(ctx, { buffer: this.buffer, detune: this.detuneAmount })
           this.player.start(ctx.currentTime, offset)
+          this.envelope.gain.setTargetAtTime(1, ctx.currentTime, 0.001)
+          this.player.connect(this.envelope).connect(this.output)
+          this.lastPosition = this.position
         }
       } else if (this.player) {
-        this.player.stop()
+        this.player.stop(ctx.currentTime + 0.01)
+        this.envelope.gain.setTargetAtTime(0, ctx.currentTime, 0.001)
         this.player = null
       }
     }
@@ -51,6 +62,10 @@ export default class Slicer {
   }
 
   pb (value) {
-    this.pitch.setTargetAtTime(value * 1200, window.audioContext.currentTime, PITCH_SMOOTHING)
+    this.detuneAmount = value * 1200
+
+    if (this.player) {
+      this.player.detune.setTargetAtTime(value * 1200, window.audioContext.currentTime, PITCH_SMOOTHING)
+    }
   }
 }
