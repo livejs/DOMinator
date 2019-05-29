@@ -3,17 +3,31 @@ export default class MidiRouter {
     this.deviceName = name
     this.handleStateChange = this.handleStateChange.bind(this)
     this.midiSetup()
+    this.runFakeClock = false
     this.channelHandlers = []
+    setInterval(() => {
+      this.fakeClock()
+    }, 60000 / 128 / 24)
   }
+
+  fakeClock () {
+    if (!this.runFakeClock) { return }
+    this.channelHandlers.forEach((handler) => {
+      if (handler && typeof handler.clock === 'function') {
+        handler.clock()
+      }
+    })
+  }
+
   async midiSetup () {
     const access = await navigator.requestMIDIAccess()
     access.onstatechange = this.handleStateChange
     this.input = this.findDevice(access)
     if (this.input) {
-      this.input.onmidimessage = (e) => console.log(e)
       this.input.addEventListener('midimessage', (e) => this.handleInput(e))
     }
   }
+  
   findDevice (access) {
     for (var [, input] of access.inputs) {
       if (input.name.match(this.deviceName)) {
@@ -21,18 +35,29 @@ export default class MidiRouter {
       }
     }
   }
+  
   handleStateChange (event) {
     // TODO: Implement for resilience
   }
   handleInput (event) {
     const data = event.data
-    if (data === [0xF8]) {
-      this.channelHandlers.forEach((handler) => {
-        if (handler && typeof handler.clock === 'function') {
-          handler.clock()
-        }
-      })
-    }
+    if (data.length === 1) {
+      console.log("CLCK", data[0].toString(16))
+      if (data[0] === 0xF8) {
+        this.channelHandlers.forEach((handler) => {
+          if (handler && typeof handler.clock === 'function') {
+            handler.clock()
+          }
+        })
+      }
+      if (data[0] === 0xFC) {
+        this.channelHandlers.forEach((handler) => {
+          if (handler && typeof handler.stop === 'function') {
+            handler.stop()
+          }
+        })
+      }
+    } 
     if (data.length === 3) {
       const channel = (data[0] & 0xF) + 1
       const command = data[0] & 0xF0

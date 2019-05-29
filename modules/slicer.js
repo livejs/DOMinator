@@ -41,9 +41,7 @@ export default class Slicer {
           this.lastPosition = this.position
         }
       } else if (this.player) {
-        this.player.stop(ctx.currentTime + 0.01)
-        this.envelope.gain.setTargetAtTime(0, ctx.currentTime, 0.001)
-        this.player = null
+        this.stop()
       }
     }
     this.position = (this.position + 1) % this.ticks
@@ -59,6 +57,13 @@ export default class Slicer {
     } else {
       this.playing = false
     }
+  }
+
+  stop() {
+    const ctx = window.audioContext
+    this.player.stop(ctx.currentTime + 0.01)
+    this.envelope.gain.setTargetAtTime(0, ctx.currentTime, 0.001)
+    this.player = null    
   }
 
   pb (value) {

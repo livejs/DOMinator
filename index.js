@@ -3,6 +3,7 @@ import MixerChannel from './modules/mixer-channel.js'
 import MidiRouter from './modules/midi-router.js'
 import SampleLoader from './modules/sample-loader.js'
 import Slicer from './modules/slicer.js'
+import DrumSampler from './modules/drum-sampler.js'
 
 const BEAT_TICKS = 24
 
@@ -30,14 +31,21 @@ const synthChannel = new MixerChannel()
 const slicerChannel = new MixerChannel()
 
 const loader = new SampleLoader()
+const drums = new DrumSampler('drums.wav', 36, 39)
+drums.config(38, { chokeGroup: 'h' })
+drums.config(39, { chokeGroup: 'h' })
+const drumChannel = new MixerChannel()
 
-loader.register('stab.wav')
 loader.register('never-forget.wav')
+loader.register(drums.sampleNames)
 
 loader.load().then(() => {
   slicer.buffer = loader.getBuffer('never-forget.wav')
+  loader.getBuffers(drums.sampleNames).forEach((buffer, index) => {
+    drums.setBuffer(index, buffer)
+  })
   console.log('LOADED!')
-})
+}).catch((e) => console.log(e))
 
 // CONNECTIONS
 synth.output.connect(synthChannel.input)
@@ -46,8 +54,12 @@ synthChannel.output.connect(window.audioContext.destination)
 slicer.output.connect(slicerChannel.input)
 slicerChannel.output.connect(window.audioContext.destination)
 
+drums.output.connect(drumChannel.input)
+drumChannel.output.connect(window.audioContext.destination)
+
 router.connect(1, synth)
 router.connect(2, slicer)
+router.connect(3, drums)
 
 router.connect(5, synthChannel)
 router.connect(6, slicerChannel)
@@ -58,6 +70,6 @@ window.synthChannel = synthChannel
 window.slicer = slicer
 window.slicerChannel = slicerChannel
 
-setInterval(() => {
-  slicer.clock()
-}, 60000 / 128 / 24)
+// expose for debugging
+window.synth = synth
+window.synthChannel = synthChannel

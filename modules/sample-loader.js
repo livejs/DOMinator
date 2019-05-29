@@ -3,38 +3,32 @@ export default class SampleLoader {
     this.samples = []
     this.buffers = new Map()
   }
-  register (name) {
-    this.samples.push(name)
-  }
 
-  registerRange (name, start, end) {
-    const [prefix, postfix] = name.split('.')
-    for (var i = start; i <= end; i++) {
-      this.samples.push(`${prefix}_${i}.${postfix}`)
+  register (names) {
+    if (typeof names === 'string') { names = [names] }
+    for (const name of names) {
+      if (name != null) {
+        this.samples.push(name)
+      }
     }
   }
 
   async load () {
-    for (const sample of this.samples) {
+    for (let sample of this.samples) {
       const body = await fetch(`samples/${sample}`)
       const buffer = await body.arrayBuffer()
-      console.log(buffer)
       const audioBuffer = await window.audioContext.decodeAudioData(buffer)
       this.buffers.set(sample, audioBuffer)
     }
-    console.log("DONE.")
   }
 
   getBuffer (name) {
     return this.buffers.get(name)
   }
 
-  getBuffers (name, start, end) {
-    const buffers = []
-    const [prefix, postfix] = name.split('.')
-    for (var i = start; i <= end; i++) {
-      buffers.push(`${prefix}_${i}.${postfix}`)
-    }
-    return buffers
+  getBuffers (names) {
+    return names.map((name) => {
+      return this.getBuffer(name)
+    })
   }
 }
