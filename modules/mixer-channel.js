@@ -37,9 +37,9 @@ export default class MixerChannel {
     if (id === 1) { // VOLUME
       this.output.gain.setTargetAtTime(cubic(midiFloat(value) * 2), time, GAIN_SMOOTHING)
     } else if (id === 2) { // REVERB SEND
-      this.output.reverbSend.setTargetAtTime(cubic(midiFloat(value)), time, GAIN_SMOOTHING)
+      this.reverbSend.gain.setTargetAtTime(cubic(midiFloat(value)), time, GAIN_SMOOTHING)
     } else if (id === 3) { // DELAY SEND
-      this.output.delaySend.setTargetAtTime(cubic(midiFloat(value)), time, GAIN_SMOOTHING)
+      this.delaySend.gain.setTargetAtTime(cubic(midiFloat(value)), time, GAIN_SMOOTHING)
     } else if (id === 4) { // DUAL FILTER
       if (value > 64) {
         this.lowPass.frequency.setTargetAtTime(20000, time, FILTER_SMOOTHING)
