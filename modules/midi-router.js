@@ -14,7 +14,7 @@ export default class MidiRouter {
     if (!this.runFakeClock) { return }
     this.channelHandlers.forEach((handler) => {
       if (handler && typeof handler.clock === 'function') {
-        handler.clock()
+        handler.clock(performance.now())
       }
     })
   }
@@ -30,6 +30,7 @@ export default class MidiRouter {
 
   findDevice (access) {
     for (var [, input] of access.inputs) {
+      console.log(input.name)
       if (input.name.match(this.deviceName)) {
         return input
       }
@@ -42,11 +43,14 @@ export default class MidiRouter {
   handleInput (event) {
     const data = event.data
     if (data.length === 1) {
+<<<<<<< HEAD
       console.log('CLCK', data[0].toString(16))
+=======
+>>>>>>> delay fx
       if (data[0] === 0xF8) {
         this.channelHandlers.forEach((handler) => {
           if (handler && typeof handler.clock === 'function') {
-            handler.clock()
+            handler.clock(event.timeStamp)
           }
         })
       }

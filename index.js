@@ -4,7 +4,7 @@ import MidiRouter from './modules/midi-router.js'
 import SampleLoader from './modules/sample-loader.js'
 import Slicer from './modules/slicer.js'
 import DrumSampler from './modules/drum-sampler.js'
-
+import DelayFX from './modules/delay-fx.js'
 const BEAT_TICKS = 24
 
 window.audioContext = new AudioContext()
@@ -29,7 +29,8 @@ const slicer = new Slicer({
 
 const synthChannel = new MixerChannel()
 const slicerChannel = new MixerChannel()
-
+const delayFX = new DelayFX()
+const delayChannel = new MixerChannel()
 const loader = new SampleLoader()
 const drums = new DrumSampler('drums.wav', 36, 39)
 drums.config(38, { chokeGroup: 'h' })
@@ -57,12 +58,19 @@ slicerChannel.output.connect(window.audioContext.destination)
 drums.output.connect(drumChannel.input)
 drumChannel.output.connect(window.audioContext.destination)
 
+delayFX.output.connect(delayChannel.input)
+delayChannel.output.connect(window.audioContext.destination)
+
+drumChannel.delaySend.connect(delayFX.input)
+
 router.connect(1, synth)
 router.connect(2, slicer)
 router.connect(3, drums)
 
 router.connect(5, synthChannel)
 router.connect(6, slicerChannel)
+router.connect(14, delayFX)
+router.connect(15, delayChannel)
 
 // expose for debugging
 window.synth = synth

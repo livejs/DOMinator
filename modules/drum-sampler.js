@@ -31,7 +31,7 @@ export default class DrumSampler {
   }
 
   noteOn (note, velocity) {
-    console.log("noteOn", note, velocity)
+    console.log('NO')
     if (this.samples[note] == null) { return }
     if (this.samples[note].buffer == null) { return }
     const src = this.audioContext.createBufferSource()
