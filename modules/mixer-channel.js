@@ -11,7 +11,6 @@ export default class MixerChannel {
     this.bitCrusher = new AudioWorkletNode(ctx, 'bit-crusher-processor')
     this.bitReduction = this.bitCrusher.parameters.get('bitReduction')
     this.frequencyReduction = this.bitCrusher.parameters.get('frequencyReduction')
-    //this.bitCrusher = new GainNode(ctx) // PLACEHOLDER
     this.lowPass = new BiquadFilterNode(ctx, { type: 'lowpass', frequency: 22000 })
     this.highPass = new BiquadFilterNode(ctx, { type: 'highpass', frequency: 0 })
     this.compressor = ctx.createDynamicsCompressor({
@@ -33,7 +32,6 @@ export default class MixerChannel {
     this.bitCrusher.connect(this.lowPass).connect(this.highPass).connect(this.output)
     this.highPass.connect(this.reverbSend)
     this.highPass.connect(this.delaySend)
-
   }
 
   quack () { // duck typing for audio ducking! Yes we are ducking serious! 🦆

@@ -3,9 +3,11 @@
     "standard.autoFixOnSave": true,
     "cSpell.words": [
         "biquad",
+        "highpass",
         "lowpass",
         "midimessage",
         "onmidimessage",
-        "onstatechange"
+        "onstatechange",
+        "worklet"
     ]
 }

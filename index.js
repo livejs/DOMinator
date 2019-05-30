@@ -21,9 +21,33 @@ document.getElementById('start').addEventListener('click', (ev) => {
   }, 300)
 })
 
+var clockDisplay = document.getElementById('clock')
+var cueDisplay = document.getElementById('cueDisplay')
+
+var ticks = 0
+
+var ui = {
+  clock: () => {
+    clockDisplay.innerText = ticks
+    ticks += 1
+  },
+  stop: () => {
+    clockDisplay.innerText = 'STOPPED'
+    ticks = 0
+  },
+  noteOn: (note) => {
+    cueDisplay.innerText = 'VISUAL CUE ' + note
+  }
+}
+
 function init () {
   // TODO: configure correct midi device
-  const router = new MidiRouter(/loopMIDI/)
+  var midiInputs = [
+    new MidiRouter(/DOMinator/, { useClock: true }), // sequencer (mac)
+    new MidiRouter(/loopMIDI/, { useClock: true }), // sequencer (windows)
+    new MidiRouter(/LD Output/), // Loop Drop (Matt)
+    new MidiRouter(/AudioBox/) // Improjam (Jan)
+  ]
 
   // MIDI Channels for Inst + Send from 1
   const drums = new DrumSampler('drums.wav', 35, 63)
@@ -80,7 +104,7 @@ function init () {
 
   // connect sends
   ;[
-    drumsChannel, bassChannel, leadChannel, slicerChannel, oneshotsChannel,
+    drumsChannel, bassChannel, leadChannel, slicerChannel, oneshotsChannel
   ].forEach((ch) => {
     ch.reverbSend.connect(reverbFX.input)
     ch.delaySend.connect(delayFX.input)
@@ -92,8 +116,13 @@ function init () {
     drums, bass, lead, slicer, oneshots,
     reverbFX, delayFX,
     drumsChannel, bassChannel, leadChannel, slicerChannel, oneshotsChannel,
-    reverbChannel, delayChannel
-  ].forEach((obj, i) => router.connect(i + 1, obj))
+    reverbChannel, delayChannel,
+    ui // to display clock info
+  ].forEach((obj, i) => {
+    midiInputs.forEach(router => {
+      router.connect(i + 1, obj)
+    })
+  })
 
   // Sample loader config
   const loader = new SampleLoader()
@@ -119,7 +148,7 @@ function init () {
   window.bassChannel = bassChannel
   window.slicer = slicer
   window.slicerChannel = slicerChannel
-  window.router = router
+  window.midiInputs = midiInputs
 
   // expose for debugging
   window.drums = drums
