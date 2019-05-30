@@ -29,8 +29,7 @@ export default class Slicer {
           const offset = (this.position / this.ticks) * this.buffer.duration
 
           if (this.player) {
-            this.player.stop(ctx.currentTime + 0.1)
-            this.envelope.gain.setTargetAtTime(0, ctx.currentTime, 0.001)
+            this._choke()
           }
 
           this.envelope = new GainNode(ctx, { gain: 0 })
@@ -41,7 +40,7 @@ export default class Slicer {
           this.lastPosition = this.position
         }
       } else if (this.player) {
-        this.stop()
+        this._choke()
       }
     }
     this.position = (this.position + 1) % this.ticks
@@ -59,11 +58,10 @@ export default class Slicer {
     }
   }
 
-  stop() {
-    const ctx = window.audioContext
-    this.player.stop(ctx.currentTime + 0.01)
-    this.envelope.gain.setTargetAtTime(0, ctx.currentTime, 0.001)
-    this.player = null    
+  stop () {
+    // stop all sounds on MIDI Clock Stop signal
+    this._choke()
+    this.playing = false
   }
 
   pb (value) {
@@ -72,5 +70,13 @@ export default class Slicer {
     if (this.player) {
       this.player.detune.setTargetAtTime(value * 1200, window.audioContext.currentTime, PITCH_SMOOTHING)
     }
+  }
+
+  // private
+  _choke () {
+    const ctx = window.audioContext
+    this.player.stop(ctx.currentTime + 0.01)
+    this.envelope.gain.setTargetAtTime(0, ctx.currentTime, 0.001)
+    this.player = null
   }
 }
