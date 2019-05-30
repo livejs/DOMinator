@@ -35,11 +35,11 @@ export default class MixerChannel {
   cc (id, value) {
     let time = window.audioContext.currentTime
     if (id === 1) { // VOLUME
-      this.output.gain.setTargetAtTime(midiToGain(value, -20, 6), time, GAIN_SMOOTHING)
+      this.output.gain.setTargetAtTime(cubic(midiFloat(value)), time, GAIN_SMOOTHING)
     } else if (id === 2) { // REVERB SEND
-      this.output.reverbSend.setTargetAtTime(midiToGain(value, -20, 6), time, GAIN_SMOOTHING)
+      this.output.reverbSend.setTargetAtTime(cubic(midiFloat(value)), time, GAIN_SMOOTHING)
     } else if (id === 3) { // DELAY SEND
-      this.output.delaySend.setTargetAtTime(midiToGain(value, -20, 6), time, GAIN_SMOOTHING)
+      this.output.delaySend.setTargetAtTime(cubic(midiFloat(value)), time, GAIN_SMOOTHING)
     } else if (id === 4) { // DUAL FILTER
       if (value > 64) {
         this.lowPass.frequency.setTargetAtTime(20000, time, FILTER_SMOOTHING)
@@ -61,21 +61,15 @@ export default class MixerChannel {
   }
 }
 
-function midiToGain (value, dBMin, dBMax) {
-  const range = dBMax - dBMin
-  const scaled = (value / 127) * range
-  return decibelsToGain(dBMin + scaled)
-}
-
-function decibelsToGain (value) {
-  return Math.exp(value / 8.6858)
-}
-
-function midiFloat (value, from, to) {
+function midiFloat (value, from = 0, to = 127) {
   const range = to - from
   return (value - from) / range
 }
 
 function exp (value) {
+  return value * value
+}
+
+function cubic (value) {
   return value * value
 }
