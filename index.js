@@ -66,9 +66,14 @@ function init () {
     startNote: 30
   })
 
-  const oneshots = new DrumSampler('oneshot.wav', 36, 38)
+  const oneshots = new DrumSampler('oneshot.wav', 36, 44)
   oneshots.config(36, { chokeGroup: 'p' })
   oneshots.config(37, { chokeGroup: 'p' })
+  oneshots.config(39, { chokeGroup: 'l' })
+  oneshots.config(40, { chokeGroup: 'l' })
+  oneshots.config(41, { chokeGroup: 'l' })
+  oneshots.config(42, { chokeGroup: 'l' })
+  oneshots.config(43, { chokeGroup: 'l' })
 
   const reverbFX = new ReverbFX()
   const delayFX = new DelayFX()
