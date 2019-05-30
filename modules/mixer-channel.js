@@ -19,7 +19,7 @@ export default class MixerChannel {
     })
 
     // sends
-    this.reverbSend = new GainNode(ctx, { gain: 0 })
+    this.reverbSend = new GainNode(ctx, { gain: 0.1 })
     this.delaySend = new GainNode(ctx, { gain: 0 })
 
     // state

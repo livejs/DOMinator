@@ -5,14 +5,9 @@ function midiFloat (value, from = 0, to = 127) {
   return (value - from) / range
 }
 
-function exp (value) {
-  return value * value
-}
-
 function cubic (value) {
   return Math.pow(value, 3)
 }
-
 
 export default class DelayFX {
   constructor () {

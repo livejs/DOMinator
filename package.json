@@ -13,8 +13,7 @@
       "BiquadFilterNode",
       "AudioContext",
       "AudioBufferSourceNode",
-      "ConstantSourceNode",
-      "fetch"
+      "ConstantSourceNode"
     ]
   },
   "repository": {
