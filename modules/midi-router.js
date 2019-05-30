@@ -1,3 +1,6 @@
+const QUACK_CHANNEL = 3
+const QUACK_NOTE = 24
+
 export default class MidiRouter {
   constructor (name) {
     this.deviceName = name
@@ -8,6 +11,7 @@ export default class MidiRouter {
     setInterval(() => {
       this.fakeClock()
     }, 60000 / 128 / 24)
+
   }
 
   fakeClock () {
@@ -59,10 +63,18 @@ export default class MidiRouter {
       }
     }
     if (data.length === 3) {
+
       const channel = (data[0] & 0xF) + 1
       const command = data[0] & 0xF0
+
       if (command === 144) {
         // handle noteon
+        // Specific Quack Handling
+        if (channel === QUACK_CHANNEL && data[1] === QUACK_NOTE) {
+          if (this.channelHandlers[channel] != null && (typeof this.channelHandlers[channel].quack === 'function')) {
+            this.channelHandlers[channel].quack()
+          }          
+        }
         if (this.channelHandlers[channel] != null && (typeof this.channelHandlers[channel].noteOn === 'function')) {
           this.channelHandlers[channel].noteOn(data[1], data[2])
         }
