@@ -69,6 +69,7 @@ window.synth = synth
 window.synthChannel = synthChannel
 window.slicer = slicer
 window.slicerChannel = slicerChannel
+window.router = router
 
 // expose for debugging
 window.synth = synth

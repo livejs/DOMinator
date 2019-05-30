@@ -27,7 +27,7 @@ export default class MidiRouter {
       this.input.addEventListener('midimessage', (e) => this.handleInput(e))
     }
   }
-  
+
   findDevice (access) {
     for (var [, input] of access.inputs) {
       if (input.name.match(this.deviceName)) {
@@ -35,14 +35,14 @@ export default class MidiRouter {
       }
     }
   }
-  
+
   handleStateChange (event) {
     // TODO: Implement for resilience
   }
   handleInput (event) {
     const data = event.data
     if (data.length === 1) {
-      console.log("CLCK", data[0].toString(16))
+      console.log('CLCK', data[0].toString(16))
       if (data[0] === 0xF8) {
         this.channelHandlers.forEach((handler) => {
           if (handler && typeof handler.clock === 'function') {
@@ -57,7 +57,7 @@ export default class MidiRouter {
           }
         })
       }
-    } 
+    }
     if (data.length === 3) {
       const channel = (data[0] & 0xF) + 1
       const command = data[0] & 0xF0
