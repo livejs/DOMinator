@@ -35,7 +35,7 @@ export default class MixerChannel {
   cc (id, value) {
     let time = window.audioContext.currentTime
     if (id === 1) { // VOLUME
-      this.output.gain.setTargetAtTime(cubic(midiFloat(value)), time, GAIN_SMOOTHING)
+      this.output.gain.setTargetAtTime(cubic(midiFloat(value) * 2), time, GAIN_SMOOTHING)
     } else if (id === 2) { // REVERB SEND
       this.output.reverbSend.setTargetAtTime(cubic(midiFloat(value)), time, GAIN_SMOOTHING)
     } else if (id === 3) { // DELAY SEND
