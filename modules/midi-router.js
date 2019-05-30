@@ -2,10 +2,11 @@ const QUACK_CHANNEL = 3
 const QUACK_NOTE = 24
 
 export default class MidiRouter {
-  constructor (name) {
+  constructor (name, { useClock = false } = {}) {
     this.deviceName = name
     this.handleStateChange = this.handleStateChange.bind(this)
     this.midiSetup()
+    this.useClock = useClock
     this.runFakeClock = false
     this.channelHandlers = []
     setInterval(() => {
@@ -44,7 +45,7 @@ export default class MidiRouter {
   }
   handleInput (event) {
     const data = event.data
-    if (data.length === 1) {
+    if (this.useClock && data.length === 1) {
       if (data[0] === 0xF8) {
         this.channelHandlers.forEach((handler) => {
           if (handler && typeof handler.clock === 'function') {

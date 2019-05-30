@@ -15,6 +15,7 @@
       "AudioBufferSourceNode",
       "ConstantSourceNode",
       "WaveShaperNode",
+      "AudioWorkletNode",
       "fetch"
     ]
   },
