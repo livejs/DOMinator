@@ -3,6 +3,7 @@ export default class DrumSampler {
     this.audioContext = window.audioContext
     this.samples = []
     this.gains = []
+    this.playing = {}
     this.chokeGroups = {}
     this.vca = this.audioContext.createGain()
     const [prefix, postfix] = name.split('.')
@@ -30,10 +31,23 @@ export default class DrumSampler {
     return this.vca
   }
 
+  stop () {
+    for (let player of Object.values(this.playing)) {
+      player.stop()
+    }
+    this.playing = {}
+  }
+
   noteOn (note, velocity) {
-    console.log("SNote", this.samples[note])
+    console.log('SNote', note, this.samples[note])
     if (this.samples[note] == null) { return }
     if (this.samples[note].buffer == null) { return }
+
+    if (this.playing[note]) {
+      this.playing[note].stop()
+      this.playing[note] = null
+    }
+
     const src = this.audioContext.createBufferSource()
     const gain = this.audioContext.createGain()
     gain.connect(this.vca)
@@ -42,7 +56,7 @@ export default class DrumSampler {
     src.buffer = buffer
     src.connect(gain)
     if (this.samples[note].chokeGroup) {
-      console.log("CHOKE", this.chokeGroups[this.samples[note].chokeGroup])
+      console.log('CHOKE', this.chokeGroups[this.samples[note].chokeGroup])
       const toChoke = this.chokeGroups[this.samples[note].chokeGroup]
       if (toChoke != null) {
         toChoke.gain.linearRampToValueAtTime(0, now + 0.02)
@@ -52,6 +66,7 @@ export default class DrumSampler {
     gain.gain.setValueAtTime(this.samples[note].volume, now)
     gain.gain.setValueAtTime(this.samples[note].volume, now + (buffer.duration - 0.02))
     gain.gain.linearRampToValueAtTime(0, now + buffer.duration)
+    this.playing[note] = src
     src.start()
   }
 }
