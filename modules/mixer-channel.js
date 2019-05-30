@@ -71,5 +71,5 @@ function exp (value) {
 }
 
 function cubic (value) {
-  return value * value
+  return Math.pow(value, 3)
 }
