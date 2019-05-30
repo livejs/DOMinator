@@ -66,7 +66,7 @@ function init () {
     startNote: 30
   })
 
-  const oneshots = new DrumSampler('oneshot.wav', 36, 37)
+  const oneshots = new DrumSampler('oneshot.wav', 36, 38)
   oneshots.config(36, { chokeGroup: 'p' })
   oneshots.config(37, { chokeGroup: 'p' })
 
