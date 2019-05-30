@@ -66,11 +66,11 @@ drumChannel.delaySend.connect(delayFX.input)
 router.connect(1, synth)
 router.connect(2, slicer)
 router.connect(3, drums)
+router.connect(15, drumChannel)
 
 router.connect(5, synthChannel)
 router.connect(6, slicerChannel)
 router.connect(14, delayFX)
-router.connect(15, delayChannel)
 
 // expose for debugging
 window.synth = synth

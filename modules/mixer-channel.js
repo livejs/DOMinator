@@ -20,7 +20,7 @@ export default class MixerChannel {
 
     // sends
     this.reverbSend = new GainNode(ctx, { gain: 0 })
-    this.delaySend = new GainNode(ctx, { gain: 0.2 })
+    this.delaySend = new GainNode(ctx, { gain: 0 })
 
     // connections
     this.input.connect(this.reverbSend)

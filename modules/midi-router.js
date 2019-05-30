@@ -43,10 +43,6 @@ export default class MidiRouter {
   handleInput (event) {
     const data = event.data
     if (data.length === 1) {
-<<<<<<< HEAD
-      console.log('CLCK', data[0].toString(16))
-=======
->>>>>>> delay fx
       if (data[0] === 0xF8) {
         this.channelHandlers.forEach((handler) => {
           if (handler && typeof handler.clock === 'function') {
