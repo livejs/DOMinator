@@ -65,6 +65,7 @@ export default class MidiRouter {
       const command = data[0] & 0xF0
 
       if (command === 144) {
+        console.log("N-O")
         // handle noteon
         // Specific Quack Handling
         if (channel === QUACK_CHANNEL && data[1] === QUACK_NOTE) {

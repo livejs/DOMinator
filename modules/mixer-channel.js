@@ -8,7 +8,10 @@ export default class MixerChannel {
     this.output = new GainNode(ctx)
 
     // inserts
-    this.bitCrusher = new GainNode(ctx) // PLACEHOLDER
+    this.bitCrusher = new AudioWorkletNode(ctx, 'bit-crusher-processor')
+    this.bitReduction = this.bitCrusher.parameters.get('bitReduction')
+    this.frequencyReduction = this.bitCrusher.parameters.get('frequencyReduction')
+    //this.bitCrusher = new GainNode(ctx) // PLACEHOLDER
     this.lowPass = new BiquadFilterNode(ctx, { type: 'lowpass', frequency: 22000 })
     this.highPass = new BiquadFilterNode(ctx, { type: 'highpass', frequency: 0 })
     this.compressor = ctx.createDynamicsCompressor({
@@ -26,9 +29,11 @@ export default class MixerChannel {
     this.duckAmount = 0
 
     // connections
-    this.input.connect(this.reverbSend)
-    this.input.connect(this.delaySend)
-    this.input.connect(this.bitCrusher).connect(this.lowPass).connect(this.highPass).connect(this.output)
+    this.input.connect(this.bitCrusher)
+    this.bitCrusher.connect(this.lowPass).connect(this.highPass).connect(this.output)
+    this.highPass.connect(this.reverbSend)
+    this.highPass.connect(this.delaySend)
+
   }
 
   quack () { // duck typing for audio ducking! Yes we are ducking serious! 🦆
@@ -62,9 +67,9 @@ export default class MixerChannel {
         this.highPass.frequency.setTargetAtTime(0, time, 0.1)
       }
     } else if (id === 5) { // BIT REDUCTION
-      // TODO
+      this.bitReduction.setTargetAtTime(16 - value / 127 * 15, time, FILTER_SMOOTHING)
     } else if (id === 6) { // RATE REDUCTION
-      // TODO
+      this.frequencyReduction.setTargetAtTime(1.0 - midiFloat(value), time, FILTER_SMOOTHING)
     } else if (id === 7) { // DUCKING AMOUNT
       this.duckAmount = midiFloat(value)
     }
