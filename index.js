@@ -23,12 +23,16 @@ document.getElementById('start').addEventListener('click', (ev) => {
 
 function init () {
   // TODO: configure correct midi device
-  const router = new MidiRouter(/IAC/)
+  const router = new MidiRouter(/loopMIDI/)
 
   // MIDI Channels for Inst + Send from 1
-  const drums = new DrumSampler('drums.wav', 36, 39)
-  drums.config(38, { chokeGroup: 'h' })
-  drums.config(39, { chokeGroup: 'h' })
+  const drums = new DrumSampler('drums.wav', 35, 63)
+  drums.config(41, { chokeGroup: 'h', volume: 0.5 })
+  drums.config(42, { chokeGroup: 'h', volume: 0.5 })
+  drums.config(50, { chokeGroup: 'h', volume: 0.5 })
+  drums.config(52, { chokeGroup: 'h', volume: 0.5 })
+  drums.config(54, { chokeGroup: 'h', volume: 0.5 })
+  drums.config(63, { chokeGroup: 'h', volume: 0.5 })
 
   const bass = new Synth()
   const lead = new Synth()
@@ -38,11 +42,9 @@ function init () {
     startNote: 30
   })
 
-  const slicer2 = new Slicer({
-    ticks: 48 * BEAT_TICKS * 4,
-    sliceCount: 48 * 2,
-    startNote: 30
-  })
+  const oneshots = new DrumSampler('oneshot.wav', 36, 37)
+  oneshots.config(36, { chokeGroup: 'p' })
+  oneshots.config(37, { chokeGroup: 'p' })
 
   const reverbFX = new ReverbFX()
   const delayFX = new DelayFX()
@@ -52,7 +54,7 @@ function init () {
   const bassChannel = new MixerChannel()
   const leadChannel = new MixerChannel()
   const slicerChannel = new MixerChannel()
-  const slicer2Channel = new MixerChannel()
+  const oneshotsChannel = new MixerChannel()
   const delayChannel = new MixerChannel()
   const reverbChannel = new MixerChannel()
 
@@ -61,19 +63,19 @@ function init () {
   bass.output.connect(bassChannel.input)
   lead.output.connect(leadChannel.input)
   slicer.output.connect(slicerChannel.input)
-  slicer2.output.connect(slicer2Channel.input)
+  oneshots.output.connect(oneshotsChannel.input)
   delayFX.output.connect(delayChannel.input)
   reverbFX.output.connect(reverbChannel.input)
 
   // connect channel strips to output
   ;[
-    drumsChannel, bassChannel, leadChannel, slicerChannel, slicer2Channel,
+    drumsChannel, bassChannel, leadChannel, slicerChannel, oneshotsChannel,
     delayChannel, reverbChannel
   ].forEach((ch) => ch.output.connect(window.audioContext.destination))
 
   // connect sends
   ;[
-    drumsChannel, bassChannel, leadChannel, slicerChannel
+    drumsChannel, bassChannel, leadChannel, slicerChannel, oneshotsChannel,
   ].forEach((ch) => {
     ch.reverbSend.connect(reverbFX.input)
     ch.delaySend.connect(delayFX.input)
@@ -82,9 +84,9 @@ function init () {
 
   // MIDI router connections
   ;[
-    drums, bass, lead, slicer, slicer2,
+    drums, bass, lead, slicer, oneshots,
     reverbFX, delayFX,
-    drumsChannel, bassChannel, leadChannel, slicerChannel, slicer2Channel,
+    drumsChannel, bassChannel, leadChannel, slicerChannel, oneshotsChannel,
     reverbChannel, delayChannel
   ].forEach((obj, i) => router.connect(i + 1, obj))
 
@@ -93,12 +95,16 @@ function init () {
 
   loader.register('never-forget.wav')
   loader.register(drums.sampleNames)
+  loader.register(oneshots.sampleNames)
 
   // assign samples after all been loaded and decoded
   loader.load().then(() => {
     slicer.buffer = loader.getBuffer('never-forget.wav')
     loader.getBuffers(drums.sampleNames).forEach((buffer, index) => {
       drums.setBuffer(index, buffer)
+    })
+    loader.getBuffers(oneshots.sampleNames).forEach((buffer, index) => {
+      oneshots.setBuffer(index, buffer)
     })
     console.log('LOADED!')
   }).catch((e) => console.log(e))
