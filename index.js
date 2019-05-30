@@ -1,4 +1,4 @@
-import SimpleSynth from './modules/simple-synth.js'
+import Synth from './modules/synth.js'
 import MixerChannel from './modules/mixer-channel.js'
 import MidiRouter from './modules/midi-router.js'
 import SampleLoader from './modules/sample-loader.js'
@@ -21,17 +21,17 @@ document.getElementById('start').addEventListener('click', (ev) => {
   }, 300)
 })
 
-function init() {
+function init () {
   // TODO: configure correct midi device
-  const router = new MidiRouter(/loopMIDI/)
+  const router = new MidiRouter(/IAC/)
 
   // MIDI Channels for Inst + Send from 1
   const drums = new DrumSampler('drums.wav', 36, 39)
   drums.config(38, { chokeGroup: 'h' })
   drums.config(39, { chokeGroup: 'h' })
 
-  const bass = new SimpleSynth()
-  const lead = new SimpleSynth()
+  const bass = new Synth()
+  const lead = new Synth()
   const slicer = new Slicer({
     ticks: 48 * BEAT_TICKS * 4,
     sliceCount: 48 * 2,
@@ -115,14 +115,14 @@ function init() {
   window.drumsChannel = drumsChannel
 }
 
-async function asyncInit() {
+async function asyncInit () {
   try {
-    await window.audioContext.audioWorklet.addModule('./worklets/bitcrusher.js?v=1');
-    console.log("ADD MODULE")
-  } catch(e) {
+    await window.audioContext.audioWorklet.addModule('./worklets/bitcrusher.js?v=1')
+    console.log('ADD MODULE')
+  } catch (e) {
     console.log(e)
   }
-  console.log("LETS INIT")
+  console.log('LETS INIT')
   init()
 }
 

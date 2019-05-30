@@ -75,8 +75,11 @@ export default class Slicer {
   // private
   _choke () {
     const ctx = window.audioContext
-    this.player.stop(ctx.currentTime + 0.01)
-    this.envelope.gain.setTargetAtTime(0, ctx.currentTime, 0.001)
-    this.player = null
+    if (this.player) {
+      this.player.stop(ctx.currentTime + 0.01)
+      this.envelope.gain.setTargetAtTime(0, ctx.currentTime, 0.001)
+      this.player = null
+      this.envelope = null
+    }
   }
 }
