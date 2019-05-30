@@ -22,14 +22,24 @@ export default class MixerChannel {
     this.reverbSend = new GainNode(ctx, { gain: 0 })
     this.delaySend = new GainNode(ctx, { gain: 0 })
 
+    // state
+    this.duckAmount = 0
+
     // connections
     this.input.connect(this.reverbSend)
     this.input.connect(this.delaySend)
     this.input.connect(this.bitCrusher).connect(this.lowPass).connect(this.highPass).connect(this.output)
   }
 
-  duck () {
-    // TODO
+  quack () { // duck typing for audio ducking! Yes we are ducking serious! 🦆
+    const time = window.audioContext.currentTime
+    if (this.duckAmount) {
+      const duckValue = Math.max(0, 1 - this.duckAmount)
+      const attack = 0.02
+      const release = 0.4
+      this.input.gain.linearRampToValueAtTime(duckValue, time + attack)
+      this.input.gain.linearRampToValueAtTime(1, time + attack + release)
+    }
   }
 
   cc (id, value) {
@@ -56,7 +66,7 @@ export default class MixerChannel {
     } else if (id === 6) { // RATE REDUCTION
       // TODO
     } else if (id === 7) { // DUCKING AMOUNT
-      // TODO
+      this.duckAmount = midiFloat(value)
     }
   }
 }
