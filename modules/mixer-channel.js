@@ -2,7 +2,7 @@ const FILTER_SMOOTHING = 0.001
 const GAIN_SMOOTHING = 0.001
 
 export default class MixerChannel {
-  constructor () {
+  constructor ({ duckAmount = 0 } = {}) {
     const ctx = window.audioContext
     this.input = new GainNode(ctx)
     this.output = new GainNode(ctx)
@@ -25,7 +25,7 @@ export default class MixerChannel {
     this.delaySend = new GainNode(ctx, { gain: 0 })
 
     // state
-    this.duckAmount = 0
+    this.duckAmount = duckAmount
 
     // connections
     this.input.connect(this.bitCrusher)
