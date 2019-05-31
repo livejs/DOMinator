@@ -88,6 +88,7 @@ function init () {
   const reverbChannel = new MixerChannel()
 
   // Connect inst/fx to channel strips
+  var masterOutput = new GainNode(window.audioContext, { gain: 0.4 })
   drums.output.connect(drumsChannel.input)
   bass.output.connect(bassChannel.input)
   lead.output.connect(leadChannel.input)
@@ -95,12 +96,13 @@ function init () {
   oneshots.output.connect(oneshotsChannel.input)
   delayFX.output.connect(delayChannel.input)
   reverbFX.output.connect(reverbChannel.input)
+  masterOutput.connect(window.audioContext.destination)
 
   // connect channel strips to output
   ;[
     drumsChannel, bassChannel, leadChannel, slicerChannel, oneshotsChannel,
     delayChannel, reverbChannel
-  ].forEach((ch) => ch.output.connect(window.audioContext.destination))
+  ].forEach((ch) => ch.output.connect(masterOutput))
 
   // connect sends
   ;[
