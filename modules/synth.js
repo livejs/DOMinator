@@ -53,9 +53,9 @@ export default class Synth {
     this.detuneValue = new ConstantSourceNode(this.context)
     this.filterEnvelopeAmount = new GainNode(this.context, { gain: 0.5 })
     this.vibratoAmount = new GainNode(this.context, { gain: vibrato })
-    this.filterValue = new ConstantSourceNode(this.context, { offset: 0.1 })
+    this.filterValue = new ConstantSourceNode(this.context, { offset: 0.01 })
     this.filterShaper = new WaveShaperNode(this.context, { curve: expCurve })
-
+    this.filterOffset = new ConstantSourceNode(this.context, { offset: 20 })
     // filter modulation connections
     this.envelope.connect(this.filterEnvelopeAmount).connect(this.filterShaper)
     this.filterValue.connect(this.filterShaper)
@@ -67,13 +67,15 @@ export default class Synth {
     this.noteValue.connect(this.subOsc.detune)
     this.detuneValue.connect(this.sawOsc.detune)
     this.vibratoLfo.connect(this.vibratoAmount).connect(this.pitch.offset)
+    this.filterOffset.connect(this.filter.frequency)
 
     // signal flow
     this.squareOsc.connect(this.squareAmp).connect(this.filter)
     this.sawOsc.connect(this.sawAmp).connect(this.filter)
     this.subOsc.connect(this.subAmp).connect(this.filter)
     this.noise.connect(this.noiseAmp).connect(this.filter)
-    this.filter.connect(this.drive).connect(this.vca)
+    this.filter.connect(new GainNode(this.context, { gain: 0.2 })).connect(this.drive).connect(this.vca)
+    // this.filter.connect(this.vca)
 
     // oscillator start
     this.squareOsc.start()
@@ -81,6 +83,7 @@ export default class Synth {
     this.subOsc.start()
     this.noise.start()
     this.vibratoLfo.start()
+    this.filterOffset.start()
 
     // constant source start
     this.pitch.start()
@@ -90,9 +93,9 @@ export default class Synth {
     this.filterValue.start()
 
     // state
-    this.attackDuration = 0
+    this.attackDuration = 0.5
     this.decayDuration = 0.5
-    this.sustain = 0.1
+    this.sustain = 0
     this.releaseDuration = 0.1
     this.glideDuration = 0.01
     this.noteStack = []
@@ -119,7 +122,7 @@ export default class Synth {
     } else if (control === 7) { // resonance
       this.filter.Q.setTargetAtTime(exp(midiFloat(value)) * 10, time, FILTER_SMOOTHING)
     } else if (control === 8) { // filter envelope
-      this.filterEnvelopeAmount.offset.setTargetAtTime(midiFloat(value) * 2 - 1, time, FILTER_SMOOTHING)
+      this.filterEnvelopeAmount.gain.setTargetAtTime(midiFloat(value) * 2 - 1, time, FILTER_SMOOTHING)
     } else if (control === 9) { // square <-|-> saw
       this.squareAmp.gain.setTargetAtTime(exp(1 - midiFloat(value)), time, AMP_SMOOTHING)
       this.sawAmp.gain.setTargetAtTime(exp(midiFloat(value)), time, AMP_SMOOTHING)
@@ -142,9 +145,7 @@ export default class Synth {
 
   noteOn (note, velocity) {
     this._setNote(note)
-    if (!this.noteStack.length) { // legato
-      this._triggerAttack()
-    }
+    this._triggerAttack()
     this.noteStack.push(note)
   }
 
@@ -152,6 +153,7 @@ export default class Synth {
     removeAllFrom(note, this.noteStack)
     console.log(note, this.noteStack)
     if (this.noteStack.length) {
+      this._triggerAttack()
       this._setNote(this.noteStack[this.noteStack.length - 1])
     } else {
       this._triggerRelease()
@@ -162,6 +164,7 @@ export default class Synth {
     // stop all notes
     this.noteStack.length = 0
     this._triggerRelease()
+    this.envelope.offset.setValueAtTime(0, this.context.currentTime)
   }
 
   // private
@@ -172,13 +175,13 @@ export default class Synth {
 
     this.envelope.offset.cancelAndHoldAtTime(time)
     this.envelope.offset.linearRampToValueAtTime(1, time + this.attackDuration)
-    this.envelope.offset.linearRampToValueAtTime(this.sustain, time + this.attackDuration + this.decayDuration)
+    this.envelope.offset.exponentialRampToValueAtTime(Math.max(0.0001, this.sustain), time + this.attackDuration + this.decayDuration)
   }
 
   _triggerRelease () {
     const time = this.context.currentTime
     this.envelope.offset.cancelAndHoldAtTime(time)
-    this.envelope.offset.linearRampToValueAtTime(0, time + this.releaseDuration)
+    this.envelope.offset.linearRampToValueAtTime(0.0001, time + this.releaseDuration)
     this.vca.gain.setTargetAtTime(0, window.audioContext.currentTime, 0.01)
   }
 
