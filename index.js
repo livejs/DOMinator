@@ -88,7 +88,16 @@ function init () {
   const reverbChannel = new MixerChannel()
 
   // Connect inst/fx to channel strips
-  var masterOutput = new GainNode(window.audioContext, { gain: 0.4 })
+  const masterOutput = new GainNode(window.audioContext, { gain: 0.3 })
+  const limiter = new DynamicsCompressorNode(window.audioContext, {
+    threshold: 0,
+    knee: 0,
+    ratio: 20,
+    attack: 0.005,
+    release: 0.05
+  })
+  const postLimiter = new GainNode(window.audioContext, { gain: 0.8 })
+
   drums.output.connect(drumsChannel.input)
   bass.output.connect(bassChannel.input)
   lead.output.connect(leadChannel.input)
@@ -96,7 +105,7 @@ function init () {
   oneshots.output.connect(oneshotsChannel.input)
   delayFX.output.connect(delayChannel.input)
   reverbFX.output.connect(reverbChannel.input)
-  masterOutput.connect(window.audioContext.destination)
+  masterOutput.connect(limiter).connect(postLimiter).connect(window.audioContext.destination)
 
   // connect channel strips to output
   ;[
