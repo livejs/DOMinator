@@ -1,18 +1,18 @@
-const FILTER_SMOOTHING = 0.001
-const GAIN_SMOOTHING = 0.001
+const FILTER_SMOOTHING = 0.1
+const GAIN_SMOOTHING = 0.01
 
 export default class MixerChannel {
-  constructor ({ duckAmount = 0 } = {}) {
+  constructor ({ duckAmount = 0, highPass = 0, volume = 1 } = {}) {
     const ctx = window.audioContext
     this.input = new GainNode(ctx)
-    this.output = new GainNode(ctx)
+    this.output = new GainNode(ctx, { gain: volume })
 
     // inserts
     this.bitCrusher = new AudioWorkletNode(ctx, 'bit-crusher-processor')
     this.bitReduction = this.bitCrusher.parameters.get('bitReduction')
     this.frequencyReduction = this.bitCrusher.parameters.get('frequencyReduction')
     this.lowPass = new BiquadFilterNode(ctx, { type: 'lowpass', frequency: 22000 })
-    this.highPass = new BiquadFilterNode(ctx, { type: 'highpass', frequency: 0 })
+    this.highPass = new BiquadFilterNode(ctx, { type: 'highpass', frequency: highPass })
     this.compressor = ctx.createDynamicsCompressor({
       threshold: -20,
       ratio: 5,
@@ -56,13 +56,13 @@ export default class MixerChannel {
     } else if (id === 4) { // DUAL FILTER
       if (value > 64) {
         this.lowPass.frequency.setTargetAtTime(20000, time, FILTER_SMOOTHING)
-        this.highPass.frequency.setTargetAtTime(exp(midiFloat(value, 64, 127)) * 20000, time, FILTER_SMOOTHING)
+        this.highPass.frequency.setTargetAtTime(exp(midiFloat(value, 64, 127)) * 20000 + 20, time, FILTER_SMOOTHING)
       } else if (value < 63) {
-        this.lowPass.frequency.setTargetAtTime(exp(midiFloat(value, 0, 63)) * 20000, time, FILTER_SMOOTHING)
-        this.highPass.frequency.setTargetAtTime(0, time, 0.1)
+        this.lowPass.frequency.setTargetAtTime(exp(midiFloat(value, 0, 63)) * 20000 + 20, time, FILTER_SMOOTHING)
+        this.highPass.frequency.setTargetAtTime(20, time, 0.1)
       } else {
         this.lowPass.frequency.setTargetAtTime(20000, time, 0.1)
-        this.highPass.frequency.setTargetAtTime(0, time, 0.1)
+        this.highPass.frequency.setTargetAtTime(20, time, 0.1)
       }
     } else if (id === 5) { // BIT REDUCTION
       this.bitDepth.setTargetAtTime(16 - value / 127 * 15, time, FILTER_SMOOTHING)

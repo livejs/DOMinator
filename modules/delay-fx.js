@@ -19,7 +19,7 @@ export default class DelayFX {
     this.returnGain.gain.value = 0.3
     this.filter = this.audioContext.createBiquadFilter()
     this.filter.mode = 'highpass'
-    this.filter.frequency.value = 6000
+    // this.filter.frequency.value = 6000
     this.filter.Q.value = -0.77
     this.shaper = this.audioContext.createWaveShaper()
     this.inGain.connect(this.delay)

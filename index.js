@@ -102,11 +102,11 @@ function init () {
   // MIDI Channels for mixer channels from 8
   const drumsChannel = new MixerChannel()
   const bassChannel = new MixerChannel({ duckAmount: 0.8 })
-  const leadChannel = new MixerChannel({ duckAmount: 1 })
+  const leadChannel = new MixerChannel({ duckAmount: 1, highPass: 100 })
   const slicerChannel = new MixerChannel({ duckAmount: 0.8 })
   const oneshotsChannel = new MixerChannel({ duckAmount: 0.8 })
-  const delayChannel = new MixerChannel({ duckAmount: 0.8 })
-  const reverbChannel = new MixerChannel({ duckAmount: 0.8 })
+  const delayChannel = new MixerChannel({ duckAmount: 0.8, highPass: 200, volume: 1.3 })
+  const reverbChannel = new MixerChannel({ duckAmount: 0.8, highPass: 100 })
 
   // Connect inst/fx to channel strips
   const masterOutput = new GainNode(window.audioContext, { gain: 0.5 })
