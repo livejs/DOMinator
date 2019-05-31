@@ -1,5 +1,5 @@
-const FILTER_SMOOTHING = 0.005
-const AMP_SMOOTHING = 0.005
+const FILTER_SMOOTHING = 0.01
+const AMP_SMOOTHING = 0.01
 const PITCH_SMOOTHING = 0.01
 
 export default class Synth {
@@ -116,7 +116,7 @@ export default class Synth {
     } else if (control === 4) { // release
       this.releaseDuration = exp(midiFloat(value)) * 10
     } else if (control === 5) { // portamento
-      this.glideDuration = exp(midiFloat(value)) * 10
+      this.glideDuration = exp(midiFloat(value)) * 3
     } else if (control === 6) { // cutoff
       this.filterValue.offset.setTargetAtTime(midiFloat(value), time, FILTER_SMOOTHING)
     } else if (control === 7) { // resonance
@@ -186,10 +186,12 @@ export default class Synth {
   }
 
   _setNote (note) {
-    const time = this.context.currentTime
-    const glideDuration = 0.01
-    this.noteValue.offset.cancelAndHoldAtTime(time)
-    this.noteValue.offset.linearRampToValueAtTime((note - 69) * 100, time + glideDuration)
+    if (this.lastNote !== note) {
+      const time = this.context.currentTime
+      this.noteValue.offset.cancelAndHoldAtTime(time)
+      this.noteValue.offset.linearRampToValueAtTime((note - 69) * 100, time + this.glideDuration)
+      this.lastNote = note
+    }
   }
 }
 
