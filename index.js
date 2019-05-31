@@ -46,13 +46,32 @@ function init () {
     new MidiRouter(/DOMinator/, { useClock: true }), // sequencer (mac)
     new MidiRouter(/loopMIDI/, { useClock: true }), // sequencer (windows)
     new MidiRouter(/LD Output/), // Loop Drop (Matt)
-    new MidiRouter(/AudioBox/) // Improjam (Jan)
+    new MidiRouter(/AudioBox/), // Improjam (Jan)
+    new MidiRouter(/Midi Through Port-0/, { useClock: true }) // Improjam (Jan local)
   ]
 
   // MIDI Channels for Inst + Send from 1
   const drums = new DrumSampler('drums.wav', 35, 63)
+
+  drums.config(37, { volume: 0.5 })
+
+  drums.config(56, { volume: 0.5 })
+
+  drums.config(57, { volume: 0.7 })
+  drums.config(58, { volume: 0.7 })
+  drums.config(59, { volume: 0.7 })
+  // congas
+  drums.config(40, { volume: 0.5 })
+  drums.config(42, { volume: 0.5 })
+  drums.config(44, { volume: 0.5 })
+
+  drums.config(49, { volume: 0.6 })
+  drums.config(51, { volume: 0.6 })
+  drums.config(53, { volume: 0.6 })
+
+  // hats
   drums.config(41, { chokeGroup: 'h', volume: 0.5 })
-  drums.config(42, { chokeGroup: 'h', volume: 0.5 })
+  drums.config(43, { chokeGroup: 'h', volume: 0.5 })
   drums.config(50, { chokeGroup: 'h', volume: 0.5 })
   drums.config(52, { chokeGroup: 'h', volume: 0.5 })
   drums.config(54, { chokeGroup: 'h', volume: 0.5 })
