@@ -15,10 +15,14 @@ export default class SampleLoader {
 
   async load () {
     for (let sample of this.samples) {
-      const body = await window.fetch(`samples/${sample}`)
-      const buffer = await body.arrayBuffer()
-      const audioBuffer = await window.audioContext.decodeAudioData(buffer)
-      this.buffers.set(sample, audioBuffer)
+      try {
+        const body = await window.fetch(`samples/${sample}`)
+        const buffer = await body.arrayBuffer()
+        const audioBuffer = await window.audioContext.decodeAudioData(buffer)
+        this.buffers.set(sample, audioBuffer)
+      } catch (e) {
+        console.log('ERROR loading sample', sample, e)
+      }
     }
   }
 

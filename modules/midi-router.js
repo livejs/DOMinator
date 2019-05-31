@@ -47,6 +47,7 @@ export default class MidiRouter {
     const data = event.data
     if (this.useClock && data.length === 1) {
       if (data[0] === 0xF8) {
+        console.log('clk')
         this.channelHandlers.forEach((handler) => {
           if (handler && typeof handler.clock === 'function') {
             handler.clock(event.timeStamp)
@@ -54,6 +55,7 @@ export default class MidiRouter {
         })
       }
       if (data[0] === 0xFC) {
+        console.log('stop')
         this.channelHandlers.forEach((handler) => {
           if (handler && typeof handler.stop === 'function') {
             handler.stop()
@@ -94,7 +96,6 @@ export default class MidiRouter {
       }
       if (command === 224) {
         // handle PB
-
         if (this.channelHandlers[channel] != null && typeof this.channelHandlers[channel].pb === 'function') {
           const pbValue = ((data[2] << 7 + data[1]) - 0x2000) / 8192
 
