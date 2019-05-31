@@ -75,7 +75,7 @@ function init () {
   drums.config(41, { chokeGroup: 'h', volume: 0.5 })
   drums.config(43, { chokeGroup: 'h', volume: 0.5 })
   drums.config(50, { chokeGroup: 'h', volume: 0.5 })
-  drums.config(52, { chokeGroup: 'h', volume: 0.5 })
+  drums.config(52, { chokeGroup: 'h', volume: 0.3 })
   drums.config(54, { chokeGroup: 'h', volume: 0.5 })
   drums.config(63, { chokeGroup: 'h', volume: 0.5 })
 
