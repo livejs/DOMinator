@@ -54,6 +54,8 @@ function init () {
   const drums = new DrumSampler('drums.wav', 35, 63)
 
   drums.config(37, { volume: 0.5 })
+  drums.config(39, { volume: 0.7 }) // clap
+  drums.config(48, { volume: 0.7 }) // clap
 
   drums.config(56, { volume: 0.5 })
 
@@ -87,7 +89,7 @@ function init () {
 
   const oneshots = new DrumSampler('oneshot.wav', 36, 45)
   oneshots.config(36, { chokeGroup: 'p' })
-  oneshots.config(37, { chokeGroup: 'p' })
+  oneshots.config(37, { chokeGroup: 'p', volume: 0.5 })
   oneshots.config(39, { chokeGroup: 'l' })
   oneshots.config(40, { chokeGroup: 'l' })
   oneshots.config(41, { chokeGroup: 'l' })
@@ -100,7 +102,7 @@ function init () {
   // MIDI Channels for mixer channels from 8
   const drumsChannel = new MixerChannel()
   const bassChannel = new MixerChannel({ duckAmount: 0.8 })
-  const leadChannel = new MixerChannel({ duckAmount: 0.8 })
+  const leadChannel = new MixerChannel({ duckAmount: 1 })
   const slicerChannel = new MixerChannel({ duckAmount: 0.8 })
   const oneshotsChannel = new MixerChannel({ duckAmount: 0.8 })
   const delayChannel = new MixerChannel({ duckAmount: 0.8 })
