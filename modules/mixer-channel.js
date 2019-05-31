@@ -65,7 +65,7 @@ export default class MixerChannel {
         this.highPass.frequency.setTargetAtTime(0, time, 0.1)
       }
     } else if (id === 5) { // BIT REDUCTION
-      this.bitReduction.setTargetAtTime(16 - value / 127 * 15, time, FILTER_SMOOTHING)
+      this.bitDepth.setTargetAtTime(16 - value / 127 * 15, time, FILTER_SMOOTHING)
     } else if (id === 6) { // RATE REDUCTION
       this.frequencyReduction.setTargetAtTime(1.0 - midiFloat(value), time, FILTER_SMOOTHING)
     } else if (id === 7) { // DUCKING AMOUNT
