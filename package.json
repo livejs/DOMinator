@@ -16,7 +16,8 @@
       "ConstantSourceNode",
       "WaveShaperNode",
       "AudioWorkletNode",
-      "fetch"
+      "AudioWorkletProcessor",
+      "DynamicsCompressorNode"
     ]
   },
   "repository": {

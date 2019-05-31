@@ -9,7 +9,7 @@ export default class MixerChannel {
 
     // inserts
     this.bitCrusher = new AudioWorkletNode(ctx, 'bit-crusher-processor')
-    this.bitReduction = this.bitCrusher.parameters.get('bitReduction')
+    this.bitDepth = this.bitCrusher.parameters.get('bitDepth')
     this.frequencyReduction = this.bitCrusher.parameters.get('frequencyReduction')
     this.lowPass = new BiquadFilterNode(ctx, { type: 'lowpass', frequency: 22000 })
     this.highPass = new BiquadFilterNode(ctx, { type: 'highpass', frequency: 0 })
@@ -65,7 +65,7 @@ export default class MixerChannel {
         this.highPass.frequency.setTargetAtTime(0, time, 0.1)
       }
     } else if (id === 5) { // BIT REDUCTION
-      this.bitDepth.setTargetAtTime(16 - value / 127 * 15, time, FILTER_SMOOTHING)
+      this.bitDepth.setTargetAtTime(16 - (value / 127 * 15), time, FILTER_SMOOTHING)
     } else if (id === 6) { // RATE REDUCTION
       this.frequencyReduction.setTargetAtTime(1.0 - midiFloat(value), time, FILTER_SMOOTHING)
     } else if (id === 7) { // DUCKING AMOUNT
