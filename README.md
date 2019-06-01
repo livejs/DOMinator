@@ -14,6 +14,12 @@ An MIDI driven audio engine written specifically for the JSConf.eu 2019 opening
 
 Written by Matt McKegg (@mckegg) & Jan Krutisch (@halfbyte)
 
+## Install / Use
+
+- use git-lfs to check out the samples
+- run npm i to install the webserver
+- use sequencer to play back track (we'll try to uh make this more useful)
+
 ## Structure
 
 - The modules folder contains all of the sound engine parts
@@ -30,4 +36,4 @@ Written by Matt McKegg (@mckegg) & Jan Krutisch (@halfbyte)
 
 ## License
 
-See (LICENSE)[LICENSE]
+See [LICENSE](LICENSE)
