@@ -1,3 +1,4 @@
+import DummyRecorder from './dummy-recorder.js'
 const QUACK_CHANNEL = 1
 const QUACK_NOTE = 24
 
@@ -12,13 +13,14 @@ export default class MidiRouter {
     setInterval(() => {
       this.fakeClock()
     }, 60000 / 128 / 24)
+    this.recorder = window.eventRecorder != null ? window.eventRecorder : new DummyRecorder()
   }
 
   fakeClock () {
     if (!this.runFakeClock) { return }
     this.channelHandlers.forEach((handler) => {
       if (handler && typeof handler.clock === 'function') {
-        handler.clock(window.performance.now())
+        handler.clock(window.performance.now(), window.audioContext.currentTime)
       }
     })
   }
@@ -45,20 +47,22 @@ export default class MidiRouter {
   }
   handleInput (event) {
     const data = event.data
+    const audioTime = window.audioContext.currentTime
     if (this.useClock && data.length === 1) {
       if (data[0] === 0xF8) {
         console.log('clk')
         this.channelHandlers.forEach((handler) => {
           if (handler && typeof handler.clock === 'function') {
-            handler.clock(event.timeStamp)
+            handler.clock(event.timeStamp, audioTime)
           }
         })
       }
       if (data[0] === 0xFC) {
         console.log('stop')
-        this.channelHandlers.forEach((handler) => {
+        this.channelHandlers.forEach((handler, ch) => {
           if (handler && typeof handler.stop === 'function') {
-            handler.stop()
+            handler.stop(audioTime)
+            this.recorder.stop(ch, audioTime)
           }
         })
       }
@@ -68,30 +72,33 @@ export default class MidiRouter {
       const command = data[0] & 0xF0
 
       if (command === 144) {
-        console.log('N-O')
         // handle noteon
         // Specific Quack Handling
         if (channel === QUACK_CHANNEL && data[1] === QUACK_NOTE) {
-          this.channelHandlers.forEach((handler) => {
+          this.channelHandlers.forEach((handler, ch) => {
             if (handler && typeof handler.quack === 'function') {
-              handler.quack()
+              handler.quack(audioTime)
+              this.recorder.quack(ch, audioTime)
             }
           })
         }
         if (this.channelHandlers[channel] != null && (typeof this.channelHandlers[channel].noteOn === 'function')) {
-          this.channelHandlers[channel].noteOn(data[1], data[2])
+          this.channelHandlers[channel].noteOn(data[1], data[2], audioTime)
+          this.recorder.noteOn(channel, data[1], data[2], audioTime)
         }
       }
       if (command === 128) {
         // handle noteoff
         if (this.channelHandlers[channel] != null && typeof this.channelHandlers[channel].noteOff === 'function') {
-          this.channelHandlers[channel].noteOff(data[1], data[2])
+          this.channelHandlers[channel].noteOff(data[1], data[2], audioTime)
+          this.recorder.noteOff(channel, data[1], data[2], audioTime)
         }
       }
       if (command === 176) {
         // handle CC
         if (this.channelHandlers[channel] != null && typeof this.channelHandlers[channel].cc === 'function') {
-          this.channelHandlers[channel].cc(data[1], data[2])
+          this.channelHandlers[channel].cc(data[1], data[2], audioTime)
+          this.recorder.cc(channel, data[1], data[2], audioTime)
         }
       }
       if (command === 224) {
@@ -99,7 +106,8 @@ export default class MidiRouter {
         if (this.channelHandlers[channel] != null && typeof this.channelHandlers[channel].pb === 'function') {
           const pbValue = ((data[2] << 7 + data[1]) - 0x2000) / 8192
 
-          this.channelHandlers[channel].pb(pbValue)
+          this.channelHandlers[channel].pb(pbValue, audioTime)
+          this.recorder.pb(channel, pbValue, audioTime)
         }
       }
     }

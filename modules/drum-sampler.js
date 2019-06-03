@@ -31,14 +31,14 @@ export default class DrumSampler {
     return this.vca
   }
 
-  stop () {
+  stop (audioTime) {
     for (let player of Object.values(this.playing)) {
-      player.stop()
+      player.stop(audioTime)
     }
     this.playing = {}
   }
 
-  noteOn (note, velocity) {
+  noteOn (note, velocity, audioTime) {
     console.log('SNote', note, this.samples[note])
     if (this.samples[note] == null) { return }
     if (this.samples[note].buffer == null) { return }
@@ -52,7 +52,7 @@ export default class DrumSampler {
     const gain = this.audioContext.createGain()
     gain.connect(this.vca)
     const buffer = this.samples[note].buffer
-    const now = this.audioContext.currentTime
+    const now = audioTime
     src.buffer = buffer
     src.connect(gain)
     if (this.samples[note].chokeGroup) {
@@ -67,6 +67,6 @@ export default class DrumSampler {
     gain.gain.setValueAtTime(this.samples[note].volume, now + (buffer.duration - 0.02))
     gain.gain.linearRampToValueAtTime(0, now + buffer.duration)
     this.playing[note] = src
-    src.start()
+    src.start(now)
   }
 }

@@ -105,8 +105,7 @@ export default class Synth {
     return this.vca
   }
 
-  cc (control, value) {
-    const time = this.context.currentTime
+  cc (control, value, time) {
     if (control === 1) { // attack
       this.attackDuration = exp(midiFloat(value)) * 10
     } else if (control === 2) { // decay
@@ -143,51 +142,49 @@ export default class Synth {
     }
   }
 
-  noteOn (note, velocity) {
-    this._setNote(note)
-    this._triggerAttack()
+  noteOn (note, velocity, audioTime) {
+    this._setNote(note, audioTime)
+    this._triggerAttack(audioTime)
     this.noteStack.push(note)
   }
 
-  noteOff (note) {
+  noteOff (note, _, audioTime) {
     removeAllFrom(note, this.noteStack)
     console.log(note, this.noteStack)
     if (this.noteStack.length) {
-      this._triggerAttack()
-      this._setNote(this.noteStack[this.noteStack.length - 1])
+      this._triggerAttack(audioTime)
+      this._setNote(this.noteStack[this.noteStack.length - 1], audioTime)
     } else {
-      this._triggerRelease()
+      this._triggerRelease(audioTime)
     }
   }
 
-  stop () {
+  stop (audioTime) {
     // stop all notes
     this.noteStack.length = 0
     this._triggerRelease()
-    this.envelope.offset.setValueAtTime(0, this.context.currentTime)
+    this.envelope.offset.setValueAtTime(0, audioTime)
   }
 
   // private
 
-  _triggerAttack () {
-    const time = this.context.currentTime
-    this.vca.gain.setTargetAtTime(1, window.audioContext.currentTime, 0.01)
+  _triggerAttack (time) {
+    this.vca.gain.setTargetAtTime(1, time, 0.01)
 
     this.envelope.offset.cancelAndHoldAtTime(time)
     this.envelope.offset.linearRampToValueAtTime(1, time + this.attackDuration)
     this.envelope.offset.exponentialRampToValueAtTime(Math.max(0.0001, this.sustain), time + this.attackDuration + this.decayDuration)
   }
 
-  _triggerRelease () {
-    const time = this.context.currentTime
+  _triggerRelease (time) {
     this.envelope.offset.cancelAndHoldAtTime(time)
     this.envelope.offset.linearRampToValueAtTime(0.0001, time + this.releaseDuration)
-    this.vca.gain.setTargetAtTime(0, window.audioContext.currentTime, 0.01)
+    this.vca.gain.setTargetAtTime(0, time, 0.01)
   }
 
-  _setNote (note) {
+  _setNote (note, time) {
+    console.log(note, time)
     if (this.lastNote !== note) {
-      const time = this.context.currentTime
       this.noteValue.offset.cancelAndHoldAtTime(time)
       this.noteValue.offset.linearRampToValueAtTime((note - 69) * 100, time + this.glideDuration)
       this.lastNote = note

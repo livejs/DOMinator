@@ -6,9 +6,10 @@ import Slicer from './modules/slicer.js'
 import DrumSampler from './modules/drum-sampler.js'
 import DelayFX from './modules/delay-fx.js'
 import ReverbFX from './modules/reverb-fx.js'
-
+import EventRecorder from './modules/event-recorder.js'
 const BEAT_TICKS = 24
 
+window.eventRecorder = new EventRecorder()
 window.audioContext = new AudioContext()
 console.log("I'M THE ONE AND ONLY DOMINATOR")
 
@@ -49,6 +50,9 @@ function init () {
     new MidiRouter(/AudioBox/), // Improjam (Jan)
     new MidiRouter(/Midi Through Port-0/, { useClock: true }) // Improjam (Jan local)
   ]
+  if (window.eventRecorder) {
+    midiInputs.push(window.eventRecorder)
+  }
 
   // MIDI Channels for Inst + Send from 1
   const drums = new DrumSampler('drums.wav', 35, 63)

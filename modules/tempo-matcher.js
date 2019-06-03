@@ -14,7 +14,7 @@ export default class TempoMatcher {
     }
     return this.tempoMemo
   }
-  clock (time) {
+  clock (time, audioTime) {
     const now = time
     if (this.lastClock) {
       this.diffs.push(now - this.lastClock)

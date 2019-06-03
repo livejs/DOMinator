@@ -18,7 +18,7 @@ export default class Slicer {
     this.player = null
   }
 
-  clock () {
+  clock (_, audioTime) {
     if (this.buffer) {
       const ctx = window.audioContext
       if (this.playing) {
@@ -29,24 +29,24 @@ export default class Slicer {
           const offset = (this.position / this.ticks) * this.buffer.duration
 
           if (this.player) {
-            this._choke()
+            this._choke(audioTime)
           }
 
           this.envelope = new GainNode(ctx, { gain: 0 })
           this.player = new AudioBufferSourceNode(ctx, { buffer: this.buffer, detune: this.detuneAmount })
-          this.player.start(ctx.currentTime, offset)
-          this.envelope.gain.setTargetAtTime(1, ctx.currentTime, 0.001)
+          this.player.start(audioTime, offset)
+          this.envelope.gain.setTargetAtTime(1, audioTime, 0.001)
           this.player.connect(this.envelope).connect(this.output)
           this.lastPosition = this.position
         }
       } else if (this.player) {
-        this._choke()
+        this._choke(audioTime)
       }
     }
     this.position = (this.position + 1) % this.ticks
   }
 
-  noteOn (noteId, velocity) {
+  noteOn (noteId, velocity, audioTime) {
     if (noteId >= this.startNote && noteId < this.startNote + this.sliceCount) {
       let sliceIndex = noteId - this.startNote
       let sliceLength = this.ticks / this.sliceCount
@@ -58,26 +58,25 @@ export default class Slicer {
     }
   }
 
-  stop () {
+  stop (audioTime) {
     // stop all sounds on MIDI Clock Stop signal
-    this._choke()
+    this._choke(audioTime)
     this.playing = false
   }
 
-  pb (value) {
+  pb (value, audioTime) {
     this.detuneAmount = value * 1200
 
     if (this.player) {
-      this.player.detune.setTargetAtTime(value * 1200, window.audioContext.currentTime, PITCH_SMOOTHING)
+      this.player.detune.setTargetAtTime(value * 1200, audioTime, PITCH_SMOOTHING)
     }
   }
 
   // private
-  _choke () {
-    const ctx = window.audioContext
+  _choke (audioTime) {
     if (this.player) {
-      this.player.stop(ctx.currentTime + 0.01)
-      this.envelope.gain.setTargetAtTime(0, ctx.currentTime, 0.001)
+      this.player.stop(audioTime + 0.01)
+      this.envelope.gain.setTargetAtTime(0, audioTime, 0.001)
       this.player = null
       this.envelope = null
     }

@@ -50,11 +50,11 @@ export default class DelayFX {
     this.tempoMatcher.stop()
   }
 
-  cc (ccnum, value) {
+  cc (ccnum, value, audioTime) {
     if (ccnum === 1) {
     }
     if (ccnum === 2) {
-      this.returnGain.gain.setTargetAtTime(cubic(midiFloat(value)), this.audioContext.currentTime, 0.001)
+      this.returnGain.gain.setTargetAtTime(cubic(midiFloat(value)), audioTime, 0.001)
     }
   }
 

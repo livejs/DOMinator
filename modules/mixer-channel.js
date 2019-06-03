@@ -34,8 +34,7 @@ export default class MixerChannel {
     this.highPass.connect(this.delaySend)
   }
 
-  quack () { // duck typing for audio ducking! Yes we are ducking serious! 🦆
-    const time = window.audioContext.currentTime
+  quack (time) { // duck typing for audio ducking! Yes we are ducking serious! 🦆
     if (this.duckAmount) {
       const duckValue = Math.max(0, 1 - this.duckAmount)
       const attack = 0.02
@@ -45,8 +44,7 @@ export default class MixerChannel {
     }
   }
 
-  cc (id, value) {
-    let time = window.audioContext.currentTime
+  cc (id, value, time) {
     if (id === 1) { // VOLUME
       this.output.gain.setTargetAtTime(cubic(midiFloat(value) * 1.5), time, GAIN_SMOOTHING)
     } else if (id === 2) { // REVERB SEND
