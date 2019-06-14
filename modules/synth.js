@@ -108,13 +108,13 @@ export default class Synth {
   cc (control, value) {
     const time = this.context.currentTime
     if (control === 1) { // attack
-      this.attackDuration = exp(midiFloat(value)) * 10
+      this.attackDuration = exp(midiFloat(value)) * 4
     } else if (control === 2) { // decay
-      this.decayDuration = exp(midiFloat(value)) * 10
+      this.decayDuration = exp(midiFloat(value)) * 4
     } else if (control === 3) { // sustain
       this.sustain = midiFloat(value)
     } else if (control === 4) { // release
-      this.releaseDuration = exp(midiFloat(value)) * 10
+      this.releaseDuration = exp(midiFloat(value)) * 4
     } else if (control === 5) { // portamento
       this.glideDuration = exp(midiFloat(value)) * 3
     } else if (control === 6) { // cutoff
@@ -171,6 +171,7 @@ export default class Synth {
 
   _triggerAttack () {
     const time = this.context.currentTime
+    this.vca.gain.cancelAndHoldAtTime(time)
     this.vca.gain.setTargetAtTime(1, window.audioContext.currentTime, 0.01)
 
     this.envelope.offset.cancelAndHoldAtTime(time)
@@ -181,8 +182,10 @@ export default class Synth {
   _triggerRelease () {
     const time = this.context.currentTime
     this.envelope.offset.cancelAndHoldAtTime(time)
+    this.vca.gain.cancelAndHoldAtTime(time)
+
     this.envelope.offset.linearRampToValueAtTime(0.0001, time + this.releaseDuration)
-    this.vca.gain.setTargetAtTime(0, window.audioContext.currentTime, 0.01)
+    this.vca.gain.linearRampToValueAtTime(0.0001, time + this.releaseDuration)
   }
 
   _setNote (note) {
